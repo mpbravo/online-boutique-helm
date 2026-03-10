@@ -498,7 +498,7 @@
               "title": "Create OpenShift Route",
               "description": "Create an OpenShift Route to expose the frontend externally. Set frontend.externalService to false when this is enabled.",
               "type": "boolean",
-              "default": false
+              "default": true
             },
             "host": {
               "title": "Hostname",

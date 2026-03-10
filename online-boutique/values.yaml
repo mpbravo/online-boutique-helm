@@ -131,7 +131,7 @@ frontend:
   # OpenShift Route – the native way to expose services on OpenShift.
   # Recommended over externalService (LoadBalancer) for on-prem/local OpenShift clusters.
   route:
-    create: false
+    create: true
     # Optional: custom hostname. Leave empty to let OpenShift auto-assign
     # (e.g. frontend-<namespace>.apps.<cluster-domain>).
     host: ""
