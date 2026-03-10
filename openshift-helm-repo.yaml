@@ -1,0 +1,26 @@
+apiVersion: helm.openshift.io/v1beta1
+kind: ProjectHelmChartRepository
+metadata:
+  name: online-boutique-charts
+spec:
+  # Connection configuration for the Helm repository
+  connectionConfig:
+    url: https://mpbravo.github.io/helm-charts/
+
+  # Repository name as it will appear in the OpenShift console
+  name: Online Boutique Charts
+
+  # Description displayed in the catalog
+  description: |
+    Helm chart for deploying Online Boutique on OpenShift.
+
+    Online Boutique is a cloud-native microservices demo application
+    consisting of 11 services that together implement an e-commerce web app.
+
+    Features:
+    - 11 pre-configured microservices (frontend, cart, checkout, payment, etc.)
+    - In-cluster Redis cart database with optional Google Cloud Spanner support
+    - Fine-grained NetworkPolicies and Istio AuthorizationPolicies per service
+    - OpenShift-compatible security contexts (non-root, read-only filesystem)
+    - Optional OpenTelemetry Collector and Google Cloud Observability integrations
+    - JSON Schema-driven form view for easy configuration in the OpenShift console

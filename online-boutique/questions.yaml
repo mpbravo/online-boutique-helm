@@ -1,0 +1,319 @@
+questions:
+
+# ── Container Images ──────────────────────────────────────────────────────────
+
+- variable: images.repository
+  label: Image Repository
+  description: "Base container image repository shared by all microservices"
+  type: string
+  required: false
+  default: "us-central1-docker.pkg.dev/google-samples/microservices-demo"
+  group: "Container Images"
+
+- variable: images.tag
+  label: Image Tag
+  description: "Container image tag for all services. Leave empty to use the chart's appVersion."
+  type: string
+  required: false
+  default: ""
+  group: "Container Images"
+
+# ── Security ──────────────────────────────────────────────────────────────────
+
+- variable: securityContext.enable
+  label: Enable Security Context
+  description: "Apply non-root user, read-only filesystem, and dropped capabilities to all containers (recommended for OpenShift)"
+  type: boolean
+  required: false
+  default: "true"
+  group: "Security"
+
+- variable: seccompProfile.enable
+  label: Enable Seccomp Profile
+  description: "Apply a seccomp syscall filter to all containers"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Security"
+
+- variable: seccompProfile.type
+  label: Seccomp Profile Type
+  description: "Type of seccomp profile. Only applies when Enable Seccomp Profile is true."
+  type: enum
+  required: false
+  default: "RuntimeDefault"
+  group: "Security"
+  options:
+    - "RuntimeDefault"
+    - "Localhost"
+    - "Unconfined"
+
+# ── Service Accounts ──────────────────────────────────────────────────────────
+
+- variable: serviceAccounts.create
+  label: Create Service Accounts
+  description: "Create a dedicated Kubernetes ServiceAccount for each microservice"
+  type: boolean
+  required: false
+  default: "true"
+  group: "Service Accounts"
+
+- variable: serviceAccounts.annotationsOnlyForCartservice
+  label: Annotations Only for Cart Service
+  description: "Apply service account annotations exclusively to cartservice (for Workload Identity least-privilege access)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Service Accounts"
+
+# ── Networking ────────────────────────────────────────────────────────────────
+
+- variable: networkPolicies.create
+  label: Create Network Policies
+  description: "Create one fine-grained NetworkPolicy per service to restrict inter-service traffic"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Networking"
+
+- variable: frontend.externalService
+  label: Expose Frontend Externally
+  description: "Create a LoadBalancer service to expose the frontend outside the cluster. On OpenShift, consider using a Route instead."
+  type: boolean
+  required: false
+  default: "true"
+  group: "Networking"
+
+- variable: frontend.platform
+  label: Frontend Platform
+  description: "Target cloud platform for the frontend. Auto-detected in GKE; set explicitly elsewhere."
+  type: enum
+  required: false
+  default: "local"
+  group: "Networking"
+  options:
+    - "local"
+    - "gcp"
+    - "aws"
+    - "azure"
+    - "onprem"
+    - "alibaba"
+
+# ── Istio / Service Mesh ──────────────────────────────────────────────────────
+
+- variable: sidecars.create
+  label: Create Istio Sidecar Resources
+  description: "Create one fine-grained Istio Sidecar resource per service (requires Istio / OpenShift Service Mesh)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Service Mesh (Istio)"
+
+- variable: authorizationPolicies.create
+  label: Create Authorization Policies
+  description: "Create one fine-grained Istio AuthorizationPolicy per service (requires Istio / OpenShift Service Mesh)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Service Mesh (Istio)"
+
+- variable: frontend.virtualService.create
+  label: Create Frontend VirtualService
+  description: "Create an Istio VirtualService for the frontend (requires Istio / OpenShift Service Mesh)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Service Mesh (Istio)"
+
+# ── Cart Database ─────────────────────────────────────────────────────────────
+
+- variable: cartDatabase.type
+  label: Cart Database Type
+  description: "Backend database for the cart service"
+  type: enum
+  required: true
+  default: "redis"
+  group: "Cart Database"
+  options:
+    - "redis"
+    - "spanner"
+
+- variable: cartDatabase.inClusterRedis.create
+  label: Deploy In-Cluster Redis
+  description: "Deploy a Redis instance inside the cluster. Disable when using an external Redis or Google Cloud Spanner."
+  type: boolean
+  required: false
+  default: "true"
+  group: "Cart Database"
+
+- variable: cartDatabase.connectionString
+  label: Cart Database Connection String
+  description: "Connection string used when in-cluster Redis is disabled (e.g. 'redis-cart:6379' or a Spanner path)"
+  type: string
+  required: false
+  default: "redis-cart:6379"
+  group: "Cart Database"
+
+- variable: cartDatabase.inClusterRedis.publicRepository
+  label: Use Public Redis Image
+  description: "Pull Redis from Docker Hub. When false, uses images.repository instead."
+  type: boolean
+  required: false
+  default: "true"
+  group: "Cart Database"
+
+# ── Services: Deploy Toggles ──────────────────────────────────────────────────
+
+- variable: adService.create
+  label: Deploy Ad Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: cartService.create
+  label: Deploy Cart Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: checkoutService.create
+  label: Deploy Checkout Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: currencyService.create
+  label: Deploy Currency Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: emailService.create
+  label: Deploy Email Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: frontend.create
+  label: Deploy Frontend
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: loadGenerator.create
+  label: Deploy Load Generator
+  description: "Deploy a synthetic traffic generator. Disable in production or when not demoing."
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: paymentService.create
+  label: Deploy Payment Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: productCatalogService.create
+  label: Deploy Product Catalog Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: recommendationService.create
+  label: Deploy Recommendation Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+- variable: shippingService.create
+  label: Deploy Shipping Service
+  type: boolean
+  required: false
+  default: "true"
+  group: "Services"
+
+# ── Google Cloud Observability ────────────────────────────────────────────────
+
+- variable: googleCloudOperations.profiler
+  label: Enable Cloud Profiler
+  description: "Enable Google Cloud Profiler for continuous CPU and heap profiling (requires GCP service account)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Google Cloud Observability"
+
+- variable: googleCloudOperations.tracing
+  label: Enable Cloud Trace
+  description: "Enable Google Cloud Trace for distributed tracing (requires GCP service account)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Google Cloud Observability"
+
+- variable: googleCloudOperations.metrics
+  label: Enable Cloud Monitoring
+  description: "Enable Google Cloud Monitoring for metrics (requires GCP service account)"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Google Cloud Observability"
+
+- variable: opentelemetryCollector.create
+  label: Deploy OpenTelemetry Collector
+  description: "Deploy an OpenTelemetry Collector alongside the application"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Google Cloud Observability"
+
+- variable: opentelemetryCollector.projectId
+  label: GCP Project ID
+  description: "Google Cloud project ID for the OTel collector. Set to PROJECT_ID to auto-detect from GCP metadata server."
+  type: string
+  required: false
+  default: "PROJECT_ID"
+  group: "Google Cloud Observability"
+
+# ── Advanced ──────────────────────────────────────────────────────────────────
+
+- variable: frontend.cymbalBranding
+  label: Enable Cymbal Branding
+  description: "Replace Online Boutique branding with Cymbal Shops branding"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Advanced"
+
+- variable: frontend.singleSharedSession
+  label: Single Shared Session
+  description: "Use a single shared session across all frontend replicas"
+  type: boolean
+  required: false
+  default: "false"
+  group: "Advanced"
+
+- variable: productCatalogService.extraLatency
+  label: Product Catalog Extra Latency
+  description: "Inject artificial latency into every Product Catalog request (e.g. '100ms'). Leave empty to disable."
+  type: string
+  required: false
+  default: ""
+  group: "Advanced"
+
+- variable: loadGenerator.checkFrontendInitContainer
+  label: Load Generator – Wait for Frontend
+  description: "Use an initContainer to wait until the frontend is ready before generating traffic"
+  type: boolean
+  required: false
+  default: "true"
+  group: "Advanced"

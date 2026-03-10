@@ -1,0 +1,957 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Online Boutique",
+  "description": "Configuration for the Online Boutique microservices demo application",
+  "type": "object",
+  "properties": {
+    "images": {
+      "title": "Container Images",
+      "description": "Container image settings shared across all services",
+      "type": "object",
+      "properties": {
+        "repository": {
+          "title": "Image Repository",
+          "description": "Base container image repository for all microservices",
+          "type": "string",
+          "default": "us-central1-docker.pkg.dev/google-samples/microservices-demo"
+        },
+        "tag": {
+          "title": "Image Tag",
+          "description": "Container image tag. Defaults to the chart appVersion when left empty.",
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "serviceAccounts": {
+      "title": "Service Accounts",
+      "description": "Kubernetes ServiceAccount configuration",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Create Service Accounts",
+          "description": "Specifies whether a ServiceAccount should be created for each service",
+          "type": "boolean",
+          "default": true
+        },
+        "annotationsOnlyForCartservice": {
+          "title": "Annotations Only for Cart Service",
+          "description": "Apply the service account annotations only to cartservice (useful for Workload Identity least-privilege access to an external database)",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "networkPolicies": {
+      "title": "Network Policies",
+      "description": "Kubernetes NetworkPolicy configuration",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Create Network Policies",
+          "description": "Create one fine-grained NetworkPolicy per service to restrict inter-service traffic",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "sidecars": {
+      "title": "Istio Sidecars",
+      "description": "Istio Sidecar resource configuration",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Create Sidecar Resources",
+          "description": "Create one fine-grained Istio Sidecar resource per service",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "authorizationPolicies": {
+      "title": "Authorization Policies",
+      "description": "Istio AuthorizationPolicy configuration",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Create Authorization Policies",
+          "description": "Create one fine-grained Istio AuthorizationPolicy per service",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "opentelemetryCollector": {
+      "title": "OpenTelemetry Collector",
+      "description": "Deploy and configure an OpenTelemetry Collector for distributed tracing",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy OpenTelemetry Collector",
+          "description": "Deploy an OpenTelemetry Collector alongside the application",
+          "type": "boolean",
+          "default": false
+        },
+        "name": {
+          "title": "Collector Name",
+          "description": "Name for the OpenTelemetry Collector deployment",
+          "type": "string",
+          "default": "opentelemetrycollector"
+        },
+        "projectId": {
+          "title": "GCP Project ID",
+          "description": "Google Cloud project ID used by the collector. When set to PROJECT_ID, an initContainer auto-retrieves it from the GCP metadata server.",
+          "type": "string",
+          "default": "PROJECT_ID"
+        }
+      }
+    },
+    "googleCloudOperations": {
+      "title": "Google Cloud Operations",
+      "description": "Enable Google Cloud Observability integrations (Cloud Profiler, Cloud Trace, Cloud Monitoring)",
+      "type": "object",
+      "properties": {
+        "profiler": {
+          "title": "Enable Cloud Profiler",
+          "description": "Enable Google Cloud Profiler for continuous CPU and heap profiling",
+          "type": "boolean",
+          "default": false
+        },
+        "tracing": {
+          "title": "Enable Cloud Trace",
+          "description": "Enable Google Cloud Trace for distributed tracing",
+          "type": "boolean",
+          "default": false
+        },
+        "metrics": {
+          "title": "Enable Cloud Monitoring",
+          "description": "Enable Google Cloud Monitoring for metrics collection",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "seccompProfile": {
+      "title": "Seccomp Profile",
+      "description": "Linux seccomp syscall filtering for all containers",
+      "type": "object",
+      "properties": {
+        "enable": {
+          "title": "Enable Seccomp Profile",
+          "description": "Apply a seccomp profile to all containers",
+          "type": "boolean",
+          "default": false
+        },
+        "type": {
+          "title": "Seccomp Profile Type",
+          "description": "Type of seccomp profile to apply",
+          "type": "string",
+          "default": "RuntimeDefault",
+          "enum": ["RuntimeDefault", "Localhost", "Unconfined"]
+        }
+      }
+    },
+    "securityContext": {
+      "title": "Security Context",
+      "description": "Pod and container security context settings",
+      "type": "object",
+      "properties": {
+        "enable": {
+          "title": "Enable Security Context",
+          "description": "Apply security contexts (non-root user, read-only filesystem, dropped capabilities) to all containers",
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "adService": {
+      "title": "Ad Service",
+      "description": "Serves text ads based on context keywords",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Ad Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "adservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "description": "Minimum CPU (e.g. 200m)",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "description": "Minimum memory (e.g. 180Mi)",
+                  "type": "string",
+                  "default": "180Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "description": "Maximum CPU (e.g. 300m)",
+                  "type": "string",
+                  "default": "300m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "description": "Maximum memory (e.g. 300Mi)",
+                  "type": "string",
+                  "default": "300Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cartService": {
+      "title": "Cart Service",
+      "description": "Stores items in the user's shopping cart in Redis",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Cart Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "cartservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "300m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "256Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "checkoutService": {
+      "title": "Checkout Service",
+      "description": "Orchestrates the checkout flow: retrieves user cart, prepares order, charges payment, ships, sends email",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Checkout Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "checkoutservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "64Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "currencyService": {
+      "title": "Currency Service",
+      "description": "Converts prices between currencies using real-time exchange rates",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Currency Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "currencyservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "256Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "emailService": {
+      "title": "Email Service",
+      "description": "Sends order confirmation emails to users",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Email Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "emailservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "64Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "frontend": {
+      "title": "Frontend",
+      "description": "Web server that serves the Online Boutique UI and acts as an API gateway",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Frontend",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "frontend"
+        },
+        "externalService": {
+          "title": "Expose as External Service",
+          "description": "Create a LoadBalancer service to expose the frontend externally",
+          "type": "boolean",
+          "default": true
+        },
+        "cymbalBranding": {
+          "title": "Enable Cymbal Branding",
+          "description": "Replace the Online Boutique branding with Cymbal Shops branding",
+          "type": "boolean",
+          "default": false
+        },
+        "platform": {
+          "title": "Platform",
+          "description": "Target deployment platform. Defaults to 'local' unless auto-detected in GKE.",
+          "type": "string",
+          "default": "local",
+          "enum": ["local", "gcp", "aws", "azure", "onprem", "alibaba"]
+        },
+        "singleSharedSession": {
+          "title": "Single Shared Session",
+          "description": "Use a single shared session across all frontend replicas",
+          "type": "boolean",
+          "default": false
+        },
+        "virtualService": {
+          "title": "Istio VirtualService",
+          "description": "Create an Istio VirtualService for the frontend (requires Istio)",
+          "type": "object",
+          "properties": {
+            "create": {
+              "title": "Create VirtualService",
+              "type": "boolean",
+              "default": false
+            },
+            "hosts": {
+              "title": "Hosts",
+              "description": "List of hosts for the VirtualService",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["*"]
+            },
+            "gateway": {
+              "title": "Istio Gateway",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "title": "Gateway Name",
+                  "type": "string",
+                  "default": "asm-ingressgateway"
+                },
+                "namespace": {
+                  "title": "Gateway Namespace",
+                  "type": "string",
+                  "default": "asm-ingress"
+                },
+                "labelKey": {
+                  "title": "Gateway Label Key",
+                  "type": "string",
+                  "default": "asm"
+                },
+                "labelValue": {
+                  "title": "Gateway Label Value",
+                  "type": "string",
+                  "default": "ingressgateway"
+                }
+              }
+            }
+          }
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "64Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "loadGenerator": {
+      "title": "Load Generator",
+      "description": "Sends synthetic user traffic to the frontend for demo and testing purposes",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Load Generator",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "loadgenerator"
+        },
+        "checkFrontendInitContainer": {
+          "title": "Wait for Frontend Init Container",
+          "description": "Use an initContainer to wait until the frontend is ready before sending traffic",
+          "type": "boolean",
+          "default": true
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "300m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "256Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "500m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "512Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "paymentService": {
+      "title": "Payment Service",
+      "description": "Charges credit cards using a mock payment processor",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Payment Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "paymentservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "256Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "productCatalogService": {
+      "title": "Product Catalog Service",
+      "description": "Serves a list of products and provides search and detail APIs",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Product Catalog Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "productcatalogservice"
+        },
+        "extraLatency": {
+          "title": "Extra Latency",
+          "description": "Inject artificial latency into every request (e.g. '100ms'). Leave empty for no extra latency.",
+          "type": "string",
+          "default": ""
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "64Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "recommendationService": {
+      "title": "Recommendation Service",
+      "description": "Recommends other products based on the current cart contents",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Recommendation Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "recommendationservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "220Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "450Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "shippingService": {
+      "title": "Shipping Service",
+      "description": "Provides shipping cost estimates and order shipment simulation",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Shipping Service",
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "shippingservice"
+        },
+        "resources": {
+          "title": "Resource Requests & Limits",
+          "type": "object",
+          "properties": {
+            "requests": {
+              "title": "Requests",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Request",
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "title": "Memory Request",
+                  "type": "string",
+                  "default": "64Mi"
+                }
+              }
+            },
+            "limits": {
+              "title": "Limits",
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "CPU Limit",
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "title": "Memory Limit",
+                  "type": "string",
+                  "default": "128Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cartDatabase": {
+      "title": "Cart Database",
+      "description": "Backend database for the cart service",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Database Type",
+          "description": "Type of database used by the cart service",
+          "type": "string",
+          "default": "redis",
+          "enum": ["redis", "spanner"]
+        },
+        "connectionString": {
+          "title": "Connection String",
+          "description": "Database connection string. Used when the in-cluster Redis is disabled.",
+          "type": "string",
+          "default": "redis-cart:6379"
+        },
+        "inClusterRedis": {
+          "title": "In-Cluster Redis",
+          "description": "Deploy a Redis instance inside the cluster for the cart service",
+          "type": "object",
+          "properties": {
+            "create": {
+              "title": "Deploy In-Cluster Redis",
+              "type": "boolean",
+              "default": true
+            },
+            "name": {
+              "title": "Redis Instance Name",
+              "type": "string",
+              "default": "redis-cart"
+            },
+            "publicRepository": {
+              "title": "Use Public Redis Image",
+              "description": "Use the official Redis image from Docker Hub. When false, uses the images.repository value.",
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "externalRedisTlsOrigination": {
+          "title": "External Redis TLS Origination",
+          "description": "Configure TLS origination when connecting to an external Redis instance (requires Istio)",
+          "type": "object",
+          "properties": {
+            "enable": {
+              "title": "Enable TLS for External Redis",
+              "type": "boolean",
+              "default": false
+            },
+            "name": {
+              "title": "Resource Name",
+              "type": "string",
+              "default": "exernal-redis-tls-origination"
+            },
+            "endpointAddress": {
+              "title": "Endpoint Address",
+              "description": "Hostname or IP address of the external Redis instance",
+              "type": "string",
+              "default": ""
+            },
+            "endpointPort": {
+              "title": "Endpoint Port",
+              "description": "Port of the external Redis instance",
+              "type": "string",
+              "default": ""
+            },
+            "certificate": {
+              "title": "TLS Certificate",
+              "description": "PEM-encoded TLS certificate for the external Redis connection",
+              "type": "string",
+              "default": ""
+            }
+          }
+        }
+      }
+    },
+    "shoppingAssistantService": {
+      "title": "Shopping Assistant Service",
+      "description": "AI-powered shopping assistant (not yet available in Helm)",
+      "type": "object",
+      "properties": {
+        "create": {
+          "title": "Deploy Shopping Assistant Service",
+          "description": "This service is not currently available via Helm",
+          "type": "boolean",
+          "default": false
+        },
+        "name": {
+          "title": "Service Name",
+          "type": "string",
+          "default": "shoppingassistantservice"
+        }
+      }
+    }
+  }
+}
