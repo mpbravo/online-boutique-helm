@@ -1,4 +1,8 @@
 {{- if and .Values.frontend.create .Values.frontend.externalService }}
 Note: It may take some time for the service to be available.
-
-Once all the pods are running, go to Networking -> Routes to access the frontend
+{{- else if and .Values.frontend.create .Values.frontend.route.create }}
+Once all the pods are running, get the frontend URL with:
+  oc get route frontend -n {{ .Release.Namespace }}
+{{- else if .Values.frontend.create }}
+Once all the pods are running, expose the frontend (e.g. via Route or port-forward).
+{{- end }}
