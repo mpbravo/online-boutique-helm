@@ -44,7 +44,7 @@ metadata:
   name: online-boutique-charts
 spec:
   connectionConfig:
-    url: https://mpbravo.github.io/helm-charts/
+    url: https://mpbravo.github.io/online-boutique-helm/
   name: Online Boutique Charts
   description: Helm chart for the Online Boutique microservices demo
 EOF

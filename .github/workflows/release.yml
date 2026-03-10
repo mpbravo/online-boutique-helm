@@ -1,0 +1,60 @@
+name: Release Helm Charts
+
+on:
+  push:
+    branches:
+      - main
+
+# Prevent concurrent runs so the gh-pages index is never written by two jobs at once
+concurrency:
+  group: release-charts
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Package and publish changed charts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # create GitHub releases and push to gh-pages
+
+    steps:
+      # Full history is required by chart-releaser to detect changed charts
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name  "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      # Update Helm dependencies for every chart before packaging
+      - name: Update chart dependencies
+        run: |
+          for chart in $(find . -maxdepth 2 -name "Chart.yaml" | xargs -I{} dirname {}); do
+            echo "Updating dependencies for $chart"
+            helm dependency update "$chart"
+          done
+
+      # chart-releaser detects charts whose version has changed since the last
+      # release tag, packages them, creates a GitHub release per chart version,
+      # uploads the .tgz artifact, and pushes an updated index.yaml to gh-pages.
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          # Root of the repo contains the 'online-boutique/' chart directory
+          charts_dir: .
+          # Target branch that hosts index.yaml for GitHub Pages
+          pages_branch: gh-pages
+          # Skip uploading if a release already exists for this chart version
+          skip_existing: true
+          # Do not mark releases as pre-release by default
+          mark_as_latest: true
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

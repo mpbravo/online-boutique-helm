@@ -5,7 +5,7 @@ metadata:
 spec:
   # Connection configuration for the Helm repository
   connectionConfig:
-    url: https://mpbravo.github.io/helm-charts/
+    url: https://mpbravo.github.io/online-boutique-helm/
 
   # Repository name as it will appear in the OpenShift console
   name: Online Boutique Charts
