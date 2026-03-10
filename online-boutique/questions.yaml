@@ -85,12 +85,59 @@ questions:
   group: "Networking"
 
 - variable: frontend.externalService
-  label: Expose Frontend Externally
-  description: "Create a LoadBalancer service to expose the frontend outside the cluster. On OpenShift, consider using a Route instead."
+  label: Expose Frontend via LoadBalancer
+  description: "Create a LoadBalancer service. Use on cloud-based OpenShift (ROSA, ARO) where a cloud load balancer is available. For on-prem/local OpenShift, disable this and enable the Route below."
   type: boolean
   required: false
   default: "true"
   group: "Networking"
+
+- variable: frontend.route.create
+  label: Create OpenShift Route
+  description: "Expose the frontend using an OpenShift Route (recommended for on-prem/bare-metal OpenShift). Disable 'Expose Frontend via LoadBalancer' when using this."
+  type: boolean
+  required: false
+  default: "false"
+  group: "Networking"
+
+- variable: frontend.route.host
+  label: Route Hostname
+  description: "Custom hostname for the Route (e.g. boutique.apps.example.com). Leave empty to auto-assign."
+  type: string
+  required: false
+  default: ""
+  group: "Networking"
+
+- variable: frontend.route.tls.enabled
+  label: Enable TLS on Route
+  description: "Terminate HTTPS at the OpenShift router."
+  type: boolean
+  required: false
+  default: "false"
+  group: "Networking"
+
+- variable: frontend.route.tls.termination
+  label: TLS Termination Mode
+  description: "edge: TLS terminated at the router (most common). reencrypt: also re-encrypts traffic to the pod."
+  type: enum
+  required: false
+  default: "edge"
+  group: "Networking"
+  options:
+    - "edge"
+    - "reencrypt"
+
+- variable: frontend.route.tls.insecureEdgeTerminationPolicy
+  label: HTTP Traffic Policy
+  description: "How to handle plain HTTP when TLS is enabled. Redirect: force HTTPS. Allow: serve both."
+  type: enum
+  required: false
+  default: "Redirect"
+  group: "Networking"
+  options:
+    - "Redirect"
+    - "Allow"
+    - "None"
 
 - variable: frontend.platform
   label: Frontend Platform

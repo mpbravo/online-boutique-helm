@@ -121,11 +121,29 @@ emailService:
 frontend:
   create: true
   name: frontend
+  # Creates a LoadBalancer service. Use this on cloud providers (GKE, AKS, EKS, ROSA, ARO).
+  # On bare-metal or local OpenShift, set to false and use frontend.route instead.
   externalService: true
   cymbalBranding: false
   # One of: local, gcp, aws, azure, onprem, alibaba. When not set, defaults to "local" unless running in GKE, otherwise auto-sets to gcp.
   platform: local
   singleSharedSession: false
+  # OpenShift Route – the native way to expose services on OpenShift.
+  # Recommended over externalService (LoadBalancer) for on-prem/local OpenShift clusters.
+  route:
+    create: false
+    # Optional: custom hostname. Leave empty to let OpenShift auto-assign
+    # (e.g. frontend-<namespace>.apps.<cluster-domain>).
+    host: ""
+    tls:
+      # Set to true to terminate TLS at the router (HTTPS access).
+      enabled: false
+      # edge: TLS terminated at the router, plain HTTP to the pod (most common).
+      # reencrypt: TLS terminated at the router and re-encrypted to the pod.
+      # passthrough: TLS passed through to the pod (not supported here, pod handles TLS).
+      termination: edge
+      # Allow HTTP in addition to HTTPS: None, Redirect, Allow.
+      insecureEdgeTerminationPolicy: Redirect
   virtualService:
     create: false
     hosts:

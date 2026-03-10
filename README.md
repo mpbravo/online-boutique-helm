@@ -19,7 +19,7 @@ helm upgrade onlineboutique ./online-boutique \
     --create-namespace
 ```
 
-### Deploy with OpenShift-optimised settings
+### Deploy with OpenShift-optimised settings (on-prem / local cluster)
 
 ```sh
 helm upgrade onlineboutique ./online-boutique \
@@ -28,7 +28,9 @@ helm upgrade onlineboutique ./online-boutique \
     --create-namespace \
     --set securityContext.enable=true \
     --set securityContext.openshift=true \
-    --set frontend.externalService=true \
+    --set frontend.externalService=false \
+    --set frontend.route.create=true \
+    --set frontend.route.tls.enabled=true \
     --set frontend.platform=local
 ```
 

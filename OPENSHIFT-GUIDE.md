@@ -91,9 +91,22 @@ images:
   tag: ""  # defaults to chart appVersion
 
 # Expose the frontend externally
+# Option A – OpenShift Route (recommended for on-prem/local OpenShift):
 frontend:
-  externalService: true
-  platform: local  # local | gcp | aws | azure | onprem | alibaba
+  externalService: false   # disable the pending LoadBalancer service
+  platform: local          # local | gcp | aws | azure | onprem | alibaba
+  route:
+    create: true
+    host: ""               # auto-assigned: frontend-<ns>.apps.<domain>
+    tls:
+      enabled: true
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+# Option B – LoadBalancer (cloud-based OpenShift: ROSA, ARO, etc.):
+# frontend:
+#   externalService: true
+#   route:
+#     create: false
 
 # Cart database
 cartDatabase:
@@ -172,14 +185,43 @@ oc adm policy add-scc-to-group anyuid system:serviceaccounts:<namespace>
 
 ### Routes vs. LoadBalancer Services
 
-OpenShift Routes are the preferred way to expose services externally. After installing the chart, create a Route for the frontend:
+On OpenShift, the standard way to expose services externally is via an **OpenShift Route** (`route.openshift.io/v1`). A `LoadBalancer` service only works when a cloud load balancer provisioner is available (ROSA on AWS, ARO on Azure, etc.). On bare-metal, local, or on-prem clusters it stays `<pending>` indefinitely.
 
-```bash
-oc expose service frontend -n <your-namespace>
-oc get route frontend -n <your-namespace>
+#### Recommended: use the built-in Route (on-prem / local OpenShift)
+
+Disable the LoadBalancer service and enable the Route instead:
+
+```yaml
+frontend:
+  externalService: false   # disable the pending LoadBalancer service
+  route:
+    create: true           # create an OpenShift Route
+    host: ""               # leave empty to auto-assign: frontend-<ns>.apps.<domain>
+    tls:
+      enabled: true        # terminate TLS at the router (HTTPS)
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
 ```
 
-Alternatively, keep `frontend.externalService: true` to create a `LoadBalancer` service if your cluster has a cloud load balancer provider.
+Or via CLI:
+
+```bash
+helm upgrade onlineboutique ./online-boutique \
+  --set frontend.externalService=false \
+  --set frontend.route.create=true \
+  --set frontend.route.tls.enabled=true \
+  -n onlineboutique
+```
+
+After deploying, get the assigned URL:
+
+```bash
+oc get route frontend -n onlineboutique
+```
+
+#### Cloud-based OpenShift (ROSA, ARO): keep LoadBalancer
+
+If your cluster has a cloud load balancer provisioner, keep `frontend.externalService: true` and leave `frontend.route.create: false`.
 
 ### Image Pull Policies
 
@@ -195,7 +237,7 @@ images:
 
 ## Deployment Scenarios
 
-### Scenario 1: Minimal Demo (no load generator)
+### Scenario 1: Minimal Demo (on-prem OpenShift, no load generator)
 
 ```yaml
 loadGenerator:
@@ -204,8 +246,14 @@ securityContext:
   enable: true
   openshift: true
 frontend:
-  externalService: true
+  externalService: false
   platform: local
+  route:
+    create: true
+    tls:
+      enabled: true
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
 ```
 
 ### Scenario 2: With Istio / OpenShift Service Mesh
@@ -281,14 +329,16 @@ helm upgrade onlineboutique ./online-boutique \
   --create-namespace
 ```
 
-### Install with overrides
+### Install with overrides (on-prem OpenShift with Route)
 
 ```bash
 helm upgrade onlineboutique ./online-boutique \
   --install \
   --namespace onlineboutique \
   --create-namespace \
-  --set frontend.externalService=true \
+  --set frontend.externalService=false \
+  --set frontend.route.create=true \
+  --set frontend.route.tls.enabled=true \
   --set frontend.platform=local \
   --set securityContext.enable=true \
   --set securityContext.openshift=true \
@@ -354,11 +404,11 @@ oc get pods -n onlineboutique
 
 All pods should reach `Running` state within a few minutes.
 
-### Check the frontend service
+### Check the frontend service and route
 
 ```bash
 oc get svc frontend -n onlineboutique
-oc get route frontend -n onlineboutique  # if you created a route
+oc get route frontend -n onlineboutique
 ```
 
 ### View logs for a specific service
@@ -419,15 +469,23 @@ oc logs deployment/cartservice -n onlineboutique
 
 Default connection string: `redis-cart:6379`. If using an external Redis, verify `cartDatabase.connectionString` is correct.
 
-### Frontend not accessible externally
+### Frontend service stuck in `<pending>` / not accessible externally
 
-If using `frontend.externalService: true`, check the service:
+A `LoadBalancer` service stays `<pending>` on clusters without a cloud load balancer provisioner (bare-metal, local, on-prem OpenShift).
+
+**Fix:** disable the LoadBalancer service and use an OpenShift Route instead:
 
 ```bash
-oc get svc frontend -n onlineboutique
+helm upgrade onlineboutique ./online-boutique \
+  --set frontend.externalService=false \
+  --set frontend.route.create=true \
+  --set frontend.route.tls.enabled=true \
+  -n onlineboutique
+
+oc get route frontend -n onlineboutique
 ```
 
-If no external IP is assigned (no cloud LB), create an OpenShift Route instead:
+If you prefer a one-off manual route without upgrading the chart:
 
 ```bash
 oc expose svc frontend -n onlineboutique

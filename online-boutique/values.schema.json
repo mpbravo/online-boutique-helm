@@ -166,7 +166,7 @@
           "title": "OpenShift Mode",
           "description": "Set to true when deploying on OpenShift. Omits runAsUser, runAsGroup and fsGroup so OpenShift can assign them from the namespace UID/GID range, which is required by the restricted and restricted-v2 SCCs.",
           "type": "boolean",
-          "default": false
+          "default": true
         }
       }
     },
@@ -488,6 +488,51 @@
           "description": "Use a single shared session across all frontend replicas",
           "type": "boolean",
           "default": false
+        },
+        "route": {
+          "title": "OpenShift Route",
+          "description": "Expose the frontend via an OpenShift Route (recommended for on-prem/local OpenShift instead of a LoadBalancer service). Disable externalService when using a Route.",
+          "type": "object",
+          "properties": {
+            "create": {
+              "title": "Create OpenShift Route",
+              "description": "Create an OpenShift Route to expose the frontend externally. Set frontend.externalService to false when this is enabled.",
+              "type": "boolean",
+              "default": false
+            },
+            "host": {
+              "title": "Hostname",
+              "description": "Custom hostname for the Route (e.g. boutique.apps.example.com). Leave empty to let OpenShift auto-assign a hostname.",
+              "type": "string",
+              "default": ""
+            },
+            "tls": {
+              "title": "TLS Configuration",
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "title": "Enable TLS",
+                  "description": "Terminate TLS at the OpenShift router (HTTPS access).",
+                  "type": "boolean",
+                  "default": false
+                },
+                "termination": {
+                  "title": "TLS Termination",
+                  "description": "edge: TLS terminated at the router, plain HTTP to the pod. reencrypt: re-encrypted to the pod.",
+                  "type": "string",
+                  "default": "edge",
+                  "enum": ["edge", "reencrypt"]
+                },
+                "insecureEdgeTerminationPolicy": {
+                  "title": "HTTP Traffic Policy",
+                  "description": "How to handle plain HTTP traffic when TLS is enabled.",
+                  "type": "string",
+                  "default": "Redirect",
+                  "enum": ["Redirect", "Allow", "None"]
+                }
+              }
+            }
+          }
         },
         "virtualService": {
           "title": "Istio VirtualService",
