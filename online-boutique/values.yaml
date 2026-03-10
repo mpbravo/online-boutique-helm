@@ -61,7 +61,7 @@ securityContext:
   # Set to true when deploying on OpenShift. Omits runAsUser, runAsGroup and
   # fsGroup from the pod securityContext so OpenShift can assign them from the
   # namespace UID/GID range (required by the restricted and restricted-v2 SCCs).
-  openshift: false
+  openshift: true
 
 adService:
   create: true
