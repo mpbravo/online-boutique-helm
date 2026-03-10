@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  # Allow manual re-runs from the GitHub Actions UI
+  workflow_dispatch:
 
 # Prevent concurrent runs so the gh-pages index is never written by two jobs at once
 concurrency:
