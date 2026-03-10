@@ -36,6 +36,13 @@ jobs:
         with:
           version: latest
 
+      # Install the cr binary only — we call each cr command explicitly below
+      # so that `cr index` always runs even when no new chart version is detected
+      - name: Install chart-releaser (cr)
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          install_only: true
+
       # Update Helm dependencies for every chart before packaging
       - name: Update chart dependencies
         run: |
@@ -44,19 +51,34 @@ jobs:
             helm dependency update "$chart"
           done
 
-      # chart-releaser detects charts whose version has changed since the last
-      # release tag, packages them, creates a GitHub release per chart version,
-      # uploads the .tgz artifact, and pushes an updated index.yaml to gh-pages.
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
-        with:
-          # Root of the repo contains the 'online-boutique/' chart directory
-          charts_dir: .
-          # Target branch that hosts index.yaml for GitHub Pages
-          pages_branch: gh-pages
-          # Skip uploading if a release already exists for this chart version
-          skip_existing: true
-          # Do not mark releases as pre-release by default
-          mark_as_latest: true
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # Package every chart found under the repo root into .cr-release-packages/
+      - name: Package charts
+        run: |
+          for chart in $(find . -maxdepth 2 -name "Chart.yaml" | xargs -I{} dirname {} | grep -v '^\.$'); do
+            echo "Packaging $chart"
+            cr package "$chart" --package-path .cr-release-packages
+          done
+
+      # Create a GitHub release per chart version if one does not already exist,
+      # and attach the .tgz artifact. --skip-existing makes this idempotent.
+      - name: Upload chart packages to GitHub Releases
+        run: |
+          cr upload \
+            --owner            "${{ github.repository_owner }}" \
+            --git-repo         "${{ github.event.repository.name }}" \
+            --token            "${{ secrets.GITHUB_TOKEN }}" \
+            --package-path     .cr-release-packages \
+            --skip-existing \
+            --make-release-latest true
+
+      # Always regenerate index.yaml from all existing GitHub releases and
+      # push it to the gh-pages branch — even when no new release was created.
+      - name: Update Helm repository index on gh-pages
+        run: |
+          cr index \
+            --owner        "${{ github.repository_owner }}" \
+            --git-repo     "${{ github.event.repository.name }}" \
+            --token        "${{ secrets.GITHUB_TOKEN }}" \
+            --pages-branch gh-pages \
+            --index-path   index.yaml \
+            --push
