@@ -161,6 +161,12 @@
           "description": "Apply security contexts (non-root user, read-only filesystem, dropped capabilities) to all containers",
           "type": "boolean",
           "default": true
+        },
+        "openshift": {
+          "title": "OpenShift Mode",
+          "description": "Set to true when deploying on OpenShift. Omits runAsUser, runAsGroup and fsGroup so OpenShift can assign them from the namespace UID/GID range, which is required by the restricted and restricted-v2 SCCs.",
+          "type": "boolean",
+          "default": false
         }
       }
     },

@@ -55,15 +55,17 @@ spec:
       terminationGracePeriodSeconds: 5
       {{- if .Values.securityContext.enable }}
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
         runAsNonRoot: true
+        {{- if not .Values.securityContext.openshift }}
         runAsUser: 1000
-      {{- end }}
+        runAsGroup: 1000
+        fsGroup: 1000
+        {{- end }}
         {{- if .Values.seccompProfile.enable }}
         seccompProfile:
           type: {{ .Values.seccompProfile.type }}
         {{- end }}
+      {{- end }}
       containers:
       - name: server
         securityContext:
@@ -233,10 +235,12 @@ spec:
       {{- end }}
       {{- if .Values.securityContext.enable }}
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
         runAsNonRoot: true
+        {{- if not .Values.securityContext.openshift }}
         runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        {{- end }}
         {{- if .Values.seccompProfile.enable }}
         seccompProfile:
           type: {{ .Values.seccompProfile.type }}

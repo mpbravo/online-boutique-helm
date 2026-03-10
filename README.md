@@ -27,6 +27,7 @@ helm upgrade onlineboutique ./online-boutique \
     --namespace onlineboutique \
     --create-namespace \
     --set securityContext.enable=true \
+    --set securityContext.openshift=true \
     --set frontend.externalService=true \
     --set frontend.platform=local
 ```

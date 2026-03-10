@@ -51,10 +51,12 @@ spec:
       terminationGracePeriodSeconds: 5
       {{- if .Values.securityContext.enable }}
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
         runAsNonRoot: true
+        {{- if not .Values.securityContext.openshift }}
         runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        {{- end }}
         {{- if .Values.seccompProfile.enable }}
         seccompProfile:
           type: {{ .Values.seccompProfile.type }}
@@ -87,6 +89,12 @@ spec:
           periodSeconds: 15
           grpc:
             port: 9555
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

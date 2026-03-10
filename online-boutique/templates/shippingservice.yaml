@@ -50,10 +50,12 @@ spec:
       {{- end }}
       {{- if .Values.securityContext.enable }}
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
         runAsNonRoot: true
+        {{- if not .Values.securityContext.openshift }}
         runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        {{- end }}
         {{- if .Values.seccompProfile.enable }}
         seccompProfile:
           type: {{ .Values.seccompProfile.type }}

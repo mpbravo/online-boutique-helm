@@ -105,11 +105,12 @@ cartDatabase:
 loadGenerator:
   create: false
 
-# OpenShift-friendly security (non-root, no privilege escalation)
+# OpenShift-compatible security — REQUIRED on OpenShift
 securityContext:
   enable: true
+  openshift: true      # omits runAsUser/runAsGroup/fsGroup; lets OpenShift assign UID
 seccompProfile:
-  enable: false        # set true if your cluster allows it
+  enable: false        # set true on OCP 4.11+ (restricted-v2 SCC)
 ```
 
 6. Set a **Release Name** (e.g., `onlineboutique`) and click **Install**.
@@ -120,11 +121,54 @@ seccompProfile:
 
 ### Security Context Constraints (SCCs)
 
-OpenShift's default `restricted` SCC prevents containers from running as root. This chart's `securityContext.enable: true` setting aligns with that constraint — all containers run as non-root with a read-only root filesystem and dropped Linux capabilities.
+OpenShift enforces SCCs on every pod. The two relevant SCCs for this chart are:
 
-> **Do not set `runAsUser`** in values when deploying on OpenShift. OpenShift automatically assigns a UID from the project's allocated range. Setting an explicit UID will conflict with the `restricted` SCC.
+| SCC | OCP version | Enforces |
+|---|---|---|
+| `restricted` | 4.x | No root, no privilege escalation, assigned UID range |
+| `restricted-v2` | 4.11+ | Same as above + requires `seccompProfile` |
 
-If your cluster uses **restricted-v2** (OCP 4.11+), no additional SCC configuration is needed.
+#### Required: enable OpenShift mode
+
+Set **both** flags to deploy cleanly on OpenShift:
+
+```yaml
+securityContext:
+  enable: true      # applies runAsNonRoot, readOnlyRootFilesystem, dropped caps
+  openshift: true   # omits runAsUser / runAsGroup / fsGroup
+```
+
+Without `securityContext.openshift: true`, every pod will fail admission with an error similar to:
+
+```
+unable to validate against any security context constraint:
+  [spec.containers[0].securityContext.runAsUser: Invalid value: 1000:
+   must be in the ranges: [1000650000, 1000659999]]
+```
+
+**Why?** OpenShift's `restricted` SCC allocates a UID range per namespace (e.g. `1000650000–1000659999`). Specifying `runAsUser: 1000` falls outside that range and is rejected. With `openshift: true`, only `runAsNonRoot: true` is set — OpenShift then automatically assigns a UID from the project's allowed range.
+
+#### restricted-v2 (OCP 4.11+)
+
+If your cluster uses `restricted-v2`, also enable the seccomp profile:
+
+```yaml
+securityContext:
+  enable: true
+  openshift: true
+seccompProfile:
+  enable: true
+  type: RuntimeDefault
+```
+
+#### Granting a less-restrictive SCC (not recommended)
+
+If you cannot use the recommended settings, you can bind a more permissive SCC to the service accounts — but this weakens cluster security:
+
+```bash
+# Example: grant anyuid to all service accounts in the namespace (NOT recommended)
+oc adm policy add-scc-to-group anyuid system:serviceaccounts:<namespace>
+```
 
 ### Routes vs. LoadBalancer Services
 
@@ -158,6 +202,7 @@ loadGenerator:
   create: false
 securityContext:
   enable: true
+  openshift: true
 frontend:
   externalService: true
   platform: local
@@ -246,6 +291,7 @@ helm upgrade onlineboutique ./online-boutique \
   --set frontend.externalService=true \
   --set frontend.platform=local \
   --set securityContext.enable=true \
+  --set securityContext.openshift=true \
   --set loadGenerator.create=false
 ```
 

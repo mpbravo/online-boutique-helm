@@ -28,6 +28,14 @@ questions:
   default: "true"
   group: "Security"
 
+- variable: securityContext.openshift
+  label: OpenShift Mode
+  description: "REQUIRED on OpenShift. Omits runAsUser, runAsGroup and fsGroup from pod security contexts so OpenShift can assign UIDs from the namespace range. Without this, pods are rejected by the restricted SCC."
+  type: boolean
+  required: false
+  default: "false"
+  group: "Security"
+
 - variable: seccompProfile.enable
   label: Enable Seccomp Profile
   description: "Apply a seccomp syscall filter to all containers"
