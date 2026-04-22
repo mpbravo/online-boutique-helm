@@ -35,7 +35,7 @@ metadata:
   labels:
     app: {{ .Values.frontend.name }}
   annotations:
-    app.openshift.io/connects-to: [{"apiVersion":"v1","kind":"Service","name":"{{ .Values.adService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.recommendationService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.cartService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.shippingService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.currencyService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.checkoutService.name }}"}]
+    app.openshift.io/connects-to: {{ list (dict "apiVersion" "v1" "kind" "Service" "name" .Values.adService.name) (dict "apiVersion" "v1" "kind" "Service" "name" .Values.recommendationService.name) (dict "apiVersion" "v1" "kind" "Service" "name" .Values.cartService.name) (dict "apiVersion" "v1" "kind" "Service" "name" .Values.shippingService.name) (dict "apiVersion" "v1" "kind" "Service" "name" .Values.currencyService.name) (dict "apiVersion" "v1" "kind" "Service" "name" .Values.checkoutService.name) | toJson | quote }}
 spec:
   selector:
     matchLabels:
