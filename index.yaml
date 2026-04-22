@@ -3,6 +3,16 @@ entries:
   onlineboutique:
   - apiVersion: v2
     appVersion: v0.10.4
+    created: "2026-04-22T10:47:09.595276422Z"
+    description: A Helm chart for Kubernetes for Online Boutique
+    digest: b76213e2b65727a597ebb041be9bddcf32654acf6202945c22da574db56d46fe
+    name: onlineboutique
+    type: application
+    urls:
+    - https://github.com/mpbravo/online-boutique-helm/releases/download/onlineboutique-0.10.9/onlineboutique-0.10.9.tgz
+    version: 0.10.9
+  - apiVersion: v2
+    appVersion: v0.10.4
     created: "2026-03-10T15:30:25.398633176Z"
     description: A Helm chart for Kubernetes for Online Boutique
     digest: 75edf8e606070d84c3f7916e170c3082366f5e2933a8e1fc10ceea8554a34d3c
@@ -51,4 +61,4 @@ entries:
     urls:
     - https://github.com/mpbravo/online-boutique-helm/releases/download/onlineboutique-0.10.4/onlineboutique-0.10.4.tgz
     version: 0.10.4
-generated: "2026-03-10T15:30:25.398655107Z"
+generated: "2026-04-22T10:47:09.595300735Z"
