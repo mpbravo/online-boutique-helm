@@ -35,7 +35,7 @@ metadata:
   labels:
     app: {{ .Values.frontend.name }}
   annotations:
-    app.openshift.io/connects-to: {{ printf "[{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"}]" .Values.adService.name .Values.recommendationService.name .Values.cartService.name .Values.shippingService.name .Values.currencyService.name .Values.checkoutService.name | quote }}
+    app.openshift.io/connects-to: [{"apiVersion":"v1","kind":"Service","name":"{{ .Values.adService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.recommendationService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.cartService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.shippingService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.currencyService.name }}"},{"apiVersion":"v1","kind":"Service","name":"{{ .Values.checkoutService.name }}"}]
 spec:
   selector:
     matchLabels:

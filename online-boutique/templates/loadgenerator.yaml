@@ -35,7 +35,7 @@ metadata:
   labels:
     app: {{ .Values.loadGenerator.name }}
   annotations:
-    app.openshift.io/connects-to: {{ printf "[{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"}]" .Values.frontend.name | quote }}
+    app.openshift.io/connects-to: [{"apiVersion":"v1","kind":"Service","name":"{{ .Values.frontend.name }}"}]
 spec:
   selector:
     matchLabels:
