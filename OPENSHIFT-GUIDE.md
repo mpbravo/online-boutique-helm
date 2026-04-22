@@ -54,11 +54,12 @@ EOF
 
 ### Step 2: Deploy from the Web Console
 
-1. Switch to the **Developer** perspective.
-2. Select or create the target project/namespace.
-3. Click **+Add** → **Helm Chart**.
-4. Search for **"onlineboutique"** and click the chart card.
-5. Click **Install Helm Chart**.
+1. Go to **Helm** → **Releases**.
+2. Select the project/namespace you have created before
+3. Click **Create Helm Release**
+4. Select the **Online Boutique Charts** repository and click on **Onlineboutique**
+4. Click **Create**
+
 
 #### Using the Form View
 

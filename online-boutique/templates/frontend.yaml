@@ -34,6 +34,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.frontend.name }}
+  annotations:
+    app.openshift.io/connects-to: {{ printf "[{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"},{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"name\":\"%s\"}]" .Values.adService.name .Values.recommendationService.name .Values.cartService.name .Values.shippingService.name .Values.currencyService.name .Values.checkoutService.name | quote }}
 spec:
   selector:
     matchLabels:
