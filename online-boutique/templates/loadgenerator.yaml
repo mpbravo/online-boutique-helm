@@ -36,6 +36,7 @@ metadata:
     app: {{ .Values.loadGenerator.name }}
   annotations:
     app.openshift.io/connects-to: {{ .Values.frontend.name}}
+    app.openshift.io/iconClass: "icon-python"
 spec:
   selector:
     matchLabels:

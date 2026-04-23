@@ -36,6 +36,7 @@ metadata:
     app: {{ .Values.frontend.name }}
   annotations:
     app.openshift.io/connects-to: '{{ join "," (list .Values.adService.name .Values.recommendationService.name .Values.cartService.name .Values.shippingService.name .Values.currencyService.name .Values.checkoutService.name) }}'
+    app.openshift.io/iconClass: "icon-golang"
 spec:
   selector:
     matchLabels:

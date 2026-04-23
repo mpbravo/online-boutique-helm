@@ -220,6 +220,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.cartDatabase.inClusterRedis.name }}
+  annotations: 
+    app.openshift.io/iconClass: "icon-redis"
   namespace: {{ .Release.Namespace }}
 spec:
   selector:

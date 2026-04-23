@@ -36,6 +36,7 @@ metadata:
     app: {{ .Values.recommendationService.name }}
   annotations:
     app.openshift.io/connects-to: {{ .Values.productCatalogService.name}}
+    app.openshift.io/iconClass: "icon-python"
 spec:
   selector:
     matchLabels:

@@ -34,6 +34,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.currencyService.name }}
+  annotations: 
+    app.openshift.io/iconClass: "icon-nodejs"
 spec:
   selector:
     matchLabels:
