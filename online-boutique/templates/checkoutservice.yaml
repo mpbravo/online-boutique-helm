@@ -35,7 +35,7 @@ metadata:
   labels:
     app: {{ .Values.checkoutService.name }}
   annotations:
-    app.openshift.io/connects-to: [{{ .Values.productCatalogService.name | quote }}, {{ .Values.cartService.name | quote }}, {{ .Values.shippingService.name | quote }}, {{ .Values.currencyService.name | quote }}, {{ .Values.paymentService.name | quote }}, {{ .Values.emailService.name | quote }}]
+    app.openshift.io/connects-to: '{{ join "," (list .Values.productCatalogService.name .Values.cartService.name .Values.shippingService.name .Values.currencyService.name .Values.paymentService.name .Values.emailService.name) }}'
 spec:
   selector:
     matchLabels:

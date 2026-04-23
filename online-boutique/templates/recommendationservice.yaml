@@ -35,7 +35,7 @@ metadata:
   labels:
     app: {{ .Values.recommendationService.name }}
   annotations:
-    app.openshift.io/connects-to: {{ list (dict "apiVersion" "v1" "kind" "Service" "name" .Values.productCatalogService.name) | toJson | quote }}
+    app.openshift.io/connects-to: {{ .Values.productCatalogService.name}}
 spec:
   selector:
     matchLabels:
