@@ -32,6 +32,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.cartService.name }}
+  annotations:
+    app.openshift.io/connects-to: {{ .Values.cartDatabase.inClusterRedis.name}}
 spec:
   selector:
     matchLabels:
