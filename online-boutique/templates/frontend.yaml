@@ -35,7 +35,7 @@ metadata:
   labels:
     app: {{ .Values.frontend.name }}
   annotations:
-    app.openshift.io/connects-to: [{{ .Values.adservice.name }}, {{ .Values.recommendationservice.name }}, {{ .Values.cartservice.name }}, {{ .Values.shippingservice.name }}, {{ .Values.currencyservice.name }}, {{ .Values.checkoutservice.name }}]
+    app.openshift.io/connects-to: [{{ .Values.adService.name }}, {{ .Values.recommendationService.name }}, {{ .Values.cartService.name }}, {{ .Values.shippingService.name }}, {{ .Values.currencyService.name }}, {{ .Values.checkoutService.name }}]
 spec:
   selector:
     matchLabels:
