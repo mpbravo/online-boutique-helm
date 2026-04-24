@@ -34,8 +34,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.shippingService.name }}
-  annotations: 
-    app.openshift.io/iconClass: "icon-golang"
+    app.openshift.io/runtime: "golang"
 spec:
   selector:
     matchLabels:

@@ -34,8 +34,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.emailService.name }}
-  annotations: 
-    app.openshift.io/iconClass: "icon-python"
+    app.openshift.io/runtime: "python"
 spec:
   selector:
     matchLabels:

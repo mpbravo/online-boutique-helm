@@ -32,6 +32,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.cartService.name }}
+    app.openshift.io/runtime: "dotnet"
   annotations:
     app.openshift.io/connects-to: {{ .Values.cartDatabase.inClusterRedis.name}}
 spec:
@@ -220,8 +221,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.cartDatabase.inClusterRedis.name }}
-  annotations: 
-    app.openshift.io/iconClass: "icon-redis"
+  labels:
+    app.openshift.io/runtime: "redis"
   namespace: {{ .Release.Namespace }}
 spec:
   selector:

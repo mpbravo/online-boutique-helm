@@ -34,8 +34,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.adService.name }}
-  annotations: 
-    app.openshift.io/iconClass: "icon-java"
+    app.openshift.io/runtime: "java"
 spec:
   selector:
     matchLabels:

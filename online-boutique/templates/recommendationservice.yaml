@@ -34,9 +34,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Values.recommendationService.name }}
+    app.openshift.io/runtime: "python"
   annotations:
     app.openshift.io/connects-to: {{ .Values.productCatalogService.name}}
-    app.openshift.io/iconClass: "icon-python"
 spec:
   selector:
     matchLabels:
